@@ -56,7 +56,7 @@ void Scenario::draw_board()
     glPushMatrix();
         glBindTexture(GL_TEXTURE_2D, textures[GROUND_TEXTURE]);
         glBegin(GL_POLYGON);
-            //glColor3f(0.0f, 1.0f, 0.0f);
+            glColor3f(1.0f, 1.0f, 1.0f);
             glNormal3f(0.0, 1.0, 0.0);
             glTexCoord2f(0, 0);
             glVertex3f(-BOARD_SIZE, 0.0f,  BOARD_SIZE);
@@ -67,6 +67,7 @@ void Scenario::draw_board()
             glTexCoord2f(0, 1);
             glVertex3f(-BOARD_SIZE, 0.0f, -BOARD_SIZE);
         glEnd();
+    disable_2D_texture();
 
         Point p;
         float size = -BOARD_SIZE - 0.1f;
@@ -97,7 +98,6 @@ void Scenario::draw_board()
         }
 
     glPopMatrix();
-    disable_2D_texture();
 }
 
 void Scenario::draw_food()
@@ -105,7 +105,6 @@ void Scenario::draw_food()
     Point p = food;
 
     enable_2D_texture();
-
     glPushMatrix();
         glBindTexture(GL_TEXTURE_2D, textures[FOOD_NUM]);
         glTranslatef(p.x, p.y + m, p.z);

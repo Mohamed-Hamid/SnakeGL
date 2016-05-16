@@ -1,5 +1,82 @@
 #include "game.h"
 
+using namespace std;
+
+void Game::playSound(const char * fileName, int repeat,bool musicSound, int channel){
+      if(musicSound){
+          // Init
+          SDL_Init(SDL_INIT_AUDIO);
+
+          // Open Audio device
+          Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 2048);
+
+          // Set Volume
+          Mix_VolumeMusic(100);
+
+          // Open Audio File
+          music = Mix_LoadMUS(fileName);
+
+          Mix_PlayMusic(music, repeat);
+
+          while (Mix_PlayingMusic())
+          {  
+                SDL_Delay(1000);
+          }
+
+           // Free File
+          Mix_FreeMusic(music);
+          music = 0;
+
+          // End
+          Mix_CloseAudio();
+      }else{
+            Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 2048);
+            // Mix_OpenAudio(44100,8,2,1400);
+            Mix_Chunk *beat1;
+
+
+            beat1 = Mix_LoadWAV(fileName);
+
+            // cout << Mix_GetError() << endl;
+            // cout << "beat1 = " << beat1 << endl;
+
+
+            Mix_VolumeChunk(beat1,80);
+
+            Mix_PlayChannel(channel,beat1,0);
+      
+            SDL_Delay(1000);
+      }
+}
+
+// void Game::playSound(const char * fileName, int repeat){
+//       // Init
+//       SDL_Init(SDL_INIT_AUDIO);
+
+//       // Open Audio device
+//       Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 2048);
+
+//       // Set Volume
+//       Mix_VolumeMusic(100);
+
+//       // Open Audio File
+//       Mix_Music* music = Mix_LoadMUS(fileName);
+
+//       Mix_PlayMusic(music, repeat);
+
+//       while (Mix_PlayingMusic())
+//       {  
+//             SDL_Delay(1000);
+//       }
+
+//        // Free File
+//       Mix_FreeMusic(music);
+//       music = 0;
+
+//       // End
+//       Mix_CloseAudio();
+// }
+
 static float to_fps(float fps, int value)
 {
     if (fps < 1)
@@ -59,7 +136,9 @@ void Game::reset()
     score = 0;
     ate = false;
     is_game_over = false;
+    play_game_over = false;
     paused = false;
+    play_level = false;
 
     tick = 30;
     tick2 = 10;
@@ -147,8 +226,10 @@ void Game::draw_menu()
     }
     else
     {
-        draw_text("VERY HARD", p, 01.0f, 1.0f, 1.0f);
+        draw_text("VERY HARD", p, 1.0f, 1.0f, 1.0f);
     }
+
+    draw_text("", p, 1.0f, 1.0f, 1.0f);
 
     if (wait())
     {
@@ -211,6 +292,11 @@ void Game::display()
         {
             if (wait())
             {
+                if(!play_game_over){
+                    std::thread gameOver(&Game::playSound, this , "./resources/GameOver.wav", 1, false, 1);
+                    gameOver.detach(); 
+                    play_game_over = true;
+                }
                 p.x = -1.25f;
                 p.y = 0.5f;
                 p.z = 0.15f;
@@ -226,6 +312,13 @@ void Game::display()
 
         if (ate)
         {
+            if(!play_ate){
+                std::thread eat(&Game::playSound, this , "./resources/Eat.wav", 1, false, 2);
+                eat.detach(); 
+                // t1.join();
+                play_ate = true;
+            }
+
             if (wait2())
             {
                 draw_text(s, p, 0.0f, 0.0f, 0.0f);
@@ -248,6 +341,37 @@ void Game::run()
 {
     if (paused || is_game_over || !is_running) return;
 
+    if(is_running && !play_level && !is_game_over && !paused){
+        switch (level)
+        {
+            case EASY:
+            {
+                std::thread level1(&Game::playSound, this , "./resources/Level1.mp3", -1, true , 0);
+                level1.detach(); 
+            }
+            break;
+            case MEDIUM:
+            {
+                std::thread level2(&Game::playSound, this , "./resources/Level2.mp3", -1, true , 0);
+                level2.detach(); 
+            }
+            break;
+            case HARD:
+            {
+                std::thread level3(&Game::playSound, this , "./resources/Level3.mp3", -1, true , 0);
+                level3.detach(); 
+            }
+            break;
+            case VERY_HARD:
+            {
+               std::thread level4(&Game::playSound, this , "./resources/Level4.mp3", -1, true , 0);
+                level4.detach(); 
+            }
+            break;
+        }
+        play_level = true;
+    }
+
     ObjectType o = scenario->has_collision(scenario->snake.head());
     ate = false;
     key_pressed = false;
@@ -260,9 +384,11 @@ void Game::run()
         case FOOD1:
             ate = true;
             score++;
+            scenario->snake.setFoodType(1);
             scenario->snake.grow(true);
             scenario->snake.move();
             scenario->change_food_pos();
+            play_ate = false;
             switch (level)
             {
                 case EASY:
@@ -288,20 +414,24 @@ void Game::run()
                     }
                 break;
                 case VERY_HARD:
+                {
                     int v = random_range(1, 5);
                     for (int i = 0; i < v; ++i)
                     {
                         scenario->add_barrier();
                     }
+                }
                 break;
             }
         break;
         case FOOD2:
             ate = true;
             score+= 2;
+            scenario->snake.setFoodType(2);
             scenario->snake.grow(true);
             scenario->snake.move();
             scenario->change_food_pos();
+            play_ate = false;
             switch (level)
             {
                 case EASY:
@@ -327,20 +457,24 @@ void Game::run()
                     }
                 break;
                 case VERY_HARD:
+                {
                     int v = random_range(1, 5);
                     for (int i = 0; i < v; ++i)
                     {
                         scenario->add_barrier();
                     }
+                }
                 break;
             }
         break;
         case FOOD3:
             ate = true;
             score+= 3;
+            scenario->snake.setFoodType(3);
             scenario->snake.grow(true);
             scenario->snake.move();
             scenario->change_food_pos();
+            play_ate = false;
             switch (level)
             {
                 case EASY:
@@ -366,18 +500,24 @@ void Game::run()
                     }
                 break;
                 case VERY_HARD:
+                {
                     int v = random_range(1, 5);
                     for (int i = 0; i < v; ++i)
                     {
                         scenario->add_barrier();
                     }
+                }
                 break;
             }
         break;
         case BARRIER:
         case BOARD:
         case SNAKE:
+        {
             is_game_over = true;
+            Mix_FreeMusic(music);
+            music = 0;
+        }
         break;
         default:
         break;
@@ -393,14 +533,26 @@ void Game::on_key_pressed(int key)
             scenario->change_camera_pos();
         break;
         case KEY_PAUSE:
-            if (is_running && !paused) pause();
-            else if(paused) start();
+            if (is_running && !paused && !is_game_over){
+                pause();
+                std::thread pause(&Game::playSound, this , "./resources/Pause.wav", 1, false, 3);
+                pause.detach();
+            }
+            else if(paused && !is_game_over){
+                start();
+                std::thread unPause(&Game::playSound, this , "./resources/Unpause.wav", 1, false, 4);
+                unPause.detach();
+            }
         break;
         case KEY_QUIT:
             exit(0);
         break;
         case KEY_SELECT:
-            if(!is_running) reset();
+            if(!is_running){
+                reset();
+                std::thread levelSelect(&Game::playSound, this , "./resources/LevelSelect.wav", 1, false, 5);
+                levelSelect.detach(); 
+            }
         break;
         // case KEY_START:
         //     if (!paused) return;
@@ -408,7 +560,13 @@ void Game::on_key_pressed(int key)
         // break;
         case KEY_STOP:
             if (!is_running) return;
-            stop();
+            else{
+                std::thread stop_(&Game::playSound, this , "./resources/Stop.wav", 1, false, 6);
+                stop_.detach(); 
+                stop();
+                Mix_FreeMusic(music);
+                music = 0;
+            }
         break;
         case KEY_RESET:
             if (!is_running) return;
@@ -422,6 +580,8 @@ void Game::on_key_pressed(int key)
         case KEY_UP:
             if (!is_running && !is_game_over)
             {
+                std::thread menuScroll1(&Game::playSound, this , "./resources/MenuScroll.wav", 1, false, 7);
+                menuScroll1.detach(); 
                 level--;
                 if (level < 1) level = 4;
             }
@@ -437,6 +597,8 @@ void Game::on_key_pressed(int key)
         case KEY_DOWN:
             if (!is_running && !is_game_over)
             {
+                std::thread menuScroll2(&Game::playSound, this , "./resources/MenuScroll.wav", 1, false, 7);
+                menuScroll2.detach(); 
                 level++;
                 if (level > 4) level = 1;
             }

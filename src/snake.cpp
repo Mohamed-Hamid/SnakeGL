@@ -11,6 +11,7 @@ Snake::Snake()
 void Snake::reset()
 {
     points.clear();
+    foodType.clear();
     int d = (rand() % 4) + 1;
     set_direction(d);
 
@@ -20,6 +21,8 @@ void Snake::reset()
     p.z = 0.0f;
 
     points.push_front(p);
+
+    foodType.push_back(0);
 
     grow();
 }
@@ -43,6 +46,11 @@ void Snake::set_direction(int d)
     direction = d;
 }
 
+void Snake::setFoodType(int type)
+{
+    foodType.push_back(type);
+}
+
 void Snake::draw()
 {
     // TODO: Draw cylindric snake.
@@ -57,16 +65,27 @@ void Snake::draw()
     glPopMatrix();
 
     enable_2D_texture();
-    glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE]);
-
-    for (size_t i = 1; i < points.size(); ++i)
-    {
+    int j = 1;
+    for (size_t i = 1; i < points.size()-1; ++i)
+    {   
+        int type = foodType.at(j);
+        switch(type){
+            case 1:
+                glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE_R]);
+            break;
+            case 2:
+                glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE_G]);
+            break;
+            case 3:
+                glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE_B]);
+            break;
+        }
         Point p = points.at(i);
-
         glPushMatrix();
             glTranslatef(p.x, p.y, p.z);
             glut2SolidCube(0.5f);
         glPopMatrix();
+        j++;
     }
 
     disable_2D_texture();

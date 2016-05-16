@@ -10,6 +10,7 @@
 #include <string.h>
 #include <vector>
 
+
 #include <SOIL/SOIL.h>
 
 using namespace std;
@@ -26,11 +27,13 @@ using namespace std;
 #define FOOD2_TEXTURE    2
 #define FOOD3_TEXTURE    3
 #define BARRIER_TEXTURE 4
-#define SNAKE_TEXTURE   5
-#define MENU_TEXTURE    6
-#define BRICK_TEXTURE   7
+#define SNAKE_TEXTURE_R 5
+#define SNAKE_TEXTURE_G 6
+#define SNAKE_TEXTURE_B 7
+#define MENU_TEXTURE    8
+#define BRICK_TEXTURE   9
 
-#define TEXTURE_COUNT   8
+#define TEXTURE_COUNT   10
 
 /* Key mappings. */
 #define KEY_CAMERA      32  // space
@@ -142,7 +145,7 @@ inline void enable_2D_texture()
     GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
 
-    GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
+    GLfloat mat_ambient[]    = { 0.2f, 0.2f, 0.2f, 1.0f };
     GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
     GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat high_shininess[] = { 0.0f };
@@ -172,7 +175,7 @@ inline void disable_2D_texture()
     GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
 
-    GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
+    GLfloat mat_ambient[]    = { 0.2f, 0.2f, 0.2f, 1.0f };
     GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
     GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat high_shininess[] = { 100.0f };
@@ -236,8 +239,14 @@ inline void load_resources()
     glBindTexture(GL_TEXTURE_2D, textures[BARRIER_TEXTURE]);
     load_image("./resources/box1.jpg");
 
-    glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE]);
-    load_image("./resources/snake.jpg");
+    glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE_R]);
+    load_image("./resources/RedSnake.png");
+
+    glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE_G]);
+    load_image("./resources/GreenSnake.png");
+
+    glBindTexture(GL_TEXTURE_2D, textures[SNAKE_TEXTURE_B]);
+    load_image("./resources/BlueSnake.png");
 
     glBindTexture(GL_TEXTURE_2D, textures[MENU_TEXTURE]);
     load_image("./resources/menu2.png");

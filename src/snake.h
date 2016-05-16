@@ -9,6 +9,7 @@ class Snake
 private:
     deque<Point> points;
     int direction;
+    deque<int> foodType;
 public:
     Snake();
     void  move();
@@ -20,4 +21,5 @@ public:
     Point tail();
     void  reset();
     int   size();
+    void setFoodType(int type);
 };
