@@ -102,6 +102,7 @@ Game::Game()
 
     tick = 30;
     tick2 = 10;
+    restore_highest_scores();
 
     scenario = new Scenario();
 }
@@ -251,6 +252,7 @@ void Game::display()
     Point p;
 
     char s [50];
+    char h [100];
 
     if (is_running)
     {
@@ -301,10 +303,29 @@ void Game::display()
                 p.y = 0.5f;
                 p.z = 0.15f;
                 draw_text("GAME OVER", p, 0.0f, 0.0f, 0.0f);
+                update_highest_score();
             }
         }
 
+        int highest_score;
         sprintf(s, "SCORE: %d", score * 10);
+
+        switch (level)
+        {
+            case EASY:
+                highest_score = highest_scores[0];
+            break;
+            case MEDIUM:
+                highest_score = highest_scores[1];
+            break;
+            case HARD:
+                highest_score = highest_scores[2];
+            break;
+            case VERY_HARD:
+                highest_score = highest_scores[3];
+            break;
+        }
+        sprintf(h, "HIGHEST SCORE: %d", highest_score);
 
         p.x = -1.0f;
         p.y = 0.5f;
@@ -328,6 +349,10 @@ void Game::display()
         {
             draw_text(s, p, 0.0f, 0.0f, 0.0f);
         }
+        p.x = 3.0f;
+        p.y = 0.5f;
+        p.z = -7.0f;
+        draw_text(h, p, 0.0f, 0.0f, 0.0f);
     }
     else
     {
@@ -335,6 +360,34 @@ void Game::display()
     }
 
     scenario->camera_mode = old_cam;
+}
+
+void Game::update_highest_score()
+{
+    switch (level)
+    {
+        case EASY:
+            if((score*10) > highest_scores[0]){
+                highest_scores[0] = score * 10;
+            }
+        break;
+        case MEDIUM:
+            if((score*10) > highest_scores[1]){
+                highest_scores[1] = score * 10;
+            }
+        break;
+        case HARD:
+            if((score*10) > highest_scores[2]){
+                highest_scores[2] = score * 10;
+            }
+        break;
+        case VERY_HARD:
+            if((score*10) > highest_scores[3]){
+                highest_scores[3] = score * 10;
+            }
+        break;
+    }
+    persist_scores();
 }
 
 void Game::run()
@@ -646,6 +699,32 @@ void Game::on_key_pressed(int key)
             cout << "key = " << key << "\n";
         break;
     }
+}
+
+void Game::persist_scores()
+{
+    std::ofstream myfile;
+    myfile.open ("highest_scores.txt");
+    int i;
+    for(i=0;i<4;i++){
+        myfile << highest_scores[i] << endl;
+    }
+    myfile.close();
+}
+
+void Game::restore_highest_scores()
+{
+    string line;
+    std::ifstream infile;
+    infile.open ("highest_scores.txt");
+    int i = 0;
+    while(!infile.eof())
+    {
+        getline(infile, line);
+        highest_scores[i++] = std::atoi(line.c_str());
+    }
+
+    infile.close();
 }
 
 bool Game::wait()

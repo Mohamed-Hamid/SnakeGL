@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <cstdlib>
+#include <fstream>
 
 class Game
 {
@@ -33,6 +35,11 @@ private:
     int       currentTime;
     int       previousTime;
     int       score;
+    int       highest_scores[];
+    int       highest_level_1_score;
+    int       highest_level_2_score;
+    int       highest_level_3_score;
+    int       highest_level_4_score;
     int       tick;
     int       tick2;
     int       level;
@@ -45,6 +52,9 @@ private:
     void      calculateFPS();
     void      run();
     void      draw_menu();
+    void      persist_scores();
+    void      restore_highest_scores();
+    void      update_highest_score();
     Mix_Music* music;
     // void playSound(const char * fileName, int repeat);
     void playSound(const char * fileName, int repeat,bool musicSound, int channel);
